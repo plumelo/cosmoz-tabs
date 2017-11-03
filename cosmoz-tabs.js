@@ -70,6 +70,14 @@
 			'_updateInvalidSelection(selectedItem)'
 		],
 
+		attached() {
+			this.listen(this, 'click', '_onLinkClick');
+		},
+
+		detached() {
+			this.unlisten(this, 'click', '_onLinkClick');
+		},
+
 		/**
 		 * Computes icon for a tab.
 		 *
@@ -236,6 +244,31 @@
 				return;
 			}
 			this.select(this.fallbackSelection);
+		},
+
+		_onLinkClick(event) {
+			// Ignore right click, click with meta or ctrl key
+			if (event.button !== 0 || event.metaKey || event.ctrlKey) {
+				return null;
+			}
+
+			let anchor = null,
+				element;
+			const path = Polymer.dom(event).path;
+			for (var i = 0; i < path.length; i++) {
+				element = path[i];
+				if (element.tagName === 'A' && element.href) {
+					anchor = element;
+				}
+				if (element.is === 'paper-tab' || element  === this) {
+					break;
+				}
+			}
+			if (!anchor) {
+				return;
+			}
+
+			event.preventDefault();
 		}
 	});
 }());
